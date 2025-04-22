@@ -1,0 +1,41 @@
+# Promtail server configuration
+server:
+  http_listen_port: 9080  # HTTP server listen port
+  grpc_listen_port: 0     # Disable gRPC server
+
+# File positions storage - keeps track of which logs have been read
+positions:
+  filename: /tmp/positions.yaml
+
+# Loki server configuration
+clients:
+  - url: http://loki:3100/loki/api/v1/push  # Loki endpoint for sending logs
+
+# Log sources configuration
+scrape_configs:
+  # Nginx web server logs
+  - job_name: nginx-logs
+    static_configs:
+      - targets:
+          - localhost
+        labels:
+          job: nginx  # Label to identify the source in Loki
+          __path__: /var/log/nginx/*.log  # Path pattern to match log files
+
+  # System logs
+  - job_name: system-logs
+    static_configs:
+      - targets:
+          - localhost
+        labels:
+          job: system  # Label to identify the source in Loki
+          __path__: /var/log/syslog  # Path to system log file
+
+  # Authentication logs
+  - job_name: auth-logs
+    static_configs:
+      - targets:
+          - localhost
+        labels:
+          job: auth  # Label to identify the source in Loki
+          __path__: /var/log/auth.log  # Path to authentication log file
